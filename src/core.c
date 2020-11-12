@@ -1,21 +1,7 @@
 #include "core.h"
+#include "main.h"
 
-double PowerOf2(double number)
+GAME_POWER_OF_2(PowerOf2)
 {
-    return number * number * 1232345;
-}
-
-double PowerOf3(double number)
-{
-    return number * number * number;
-}
-
-double CircleArea(double radius)
-{
-    return radius * radius * PI;
-}
-
-double CircleCircum(double radius)
-{
-    return 2 * radius * PI;
+    return value * value;
 }
