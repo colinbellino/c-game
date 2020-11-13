@@ -1,7 +1,36 @@
-#define GAME_POWER_OF_2(name) double name(double value)
-typedef GAME_POWER_OF_2(game_power_of_2);
+#if !defined(MAIN_H)
 
-GAME_POWER_OF_2(gamePowerOf2Stub)
+#include <stdio.h>
+#include <SDL2/SDL.h>
+
+#define internal static
+#define local static
+#define global static
+
+typedef struct GameInitResult
 {
+    SDL_Window *Window;
+    int ErrorCode;
+} GameInitResult;
+
+#define GAME_INIT(name) GameInitResult name()
+typedef GAME_INIT(GameInit);
+
+GAME_INIT(gameInitStub)
+{
+    printf("gameInitStub");
+    GameInitResult bla = {};
+    return bla;
+}
+
+#define GAME_UPDATE(name) int name(SDL_Window *window)
+typedef GAME_UPDATE(GameUpdate);
+
+GAME_UPDATE(gameUpdateStub)
+{
+    printf("gameUpdateStub");
     return 0;
 }
+
+#define MAIN_H
+#endif

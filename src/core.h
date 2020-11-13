@@ -1,1 +1,0 @@
-double PowerOf2(double number);

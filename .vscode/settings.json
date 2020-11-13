@@ -1,6 +1,13 @@
 {
     "files.associations": {
         "*.js": "javascriptreact",
-        "__locale": "c"
+        "__locale": "c",
+        "typeinfo": "cpp"
+    },
+    "triggerTaskOnSave.tasks": {
+        "mac_build_game": [
+            "src/*.c",
+            "src/*.h"
+        ]
     }
 }

@@ -11,15 +11,16 @@
 int hotReload = 1;
 #else
 int hotReload = 0;
-#include "core.c"
+#include "game.c"
 #endif
 
-const char *libPath = "./build/core.dylib";
+const char *libPath = "./build/game.dylib";
 
 typedef struct MacGameCode
 {
     void *Handle;
-    game_power_of_2 *PowerOf2;
+    GameInit *Init;
+    GameUpdate *Update;
     int IsValid;
 } MacGameCode;
 
@@ -49,21 +50,16 @@ MacGameCode macLoadGameCode(void)
         return result;
     }
 
-    game_power_of_2 *powerOf2 = dlsym(handle, "PowerOf2");
-    if (!powerOf2)
-    {
-        fprintf(stderr, "Error: %s\n", dlerror());
-        dlclose(handle);
-        return result;
-    }
-
     result.Handle = handle;
-    result.PowerOf2 = powerOf2;
-    result.IsValid = (result.PowerOf2 != NULL);
+    result.Init = dlsym(handle, "Init");
+    result.Update = dlsym(handle, "Update");
+    result.IsValid = (result.Init != NULL &&
+                      result.Update != NULL);
 
     if (!result.IsValid)
     {
-        result.PowerOf2 = gamePowerOf2Stub;
+        result.Init = gameInitStub;
+        result.Update = gameUpdateStub;
     }
 
     return result;
@@ -77,36 +73,40 @@ void macUnloadGameCode(MacGameCode *gameCode)
         gameCode->Handle = NULL;
     }
 
+    gameCode->Init = gameInitStub;
+    gameCode->Update = gameUpdateStub;
     gameCode->IsValid = false;
-    gameCode->PowerOf2 = gamePowerOf2Stub;
 }
 
 int main()
 {
-    int close = 0;
-
-    printf("-------------------------------------------------------- \n");
+    printf("--------------------------------------------------------\n");
     printf("- Hot reload: %s. \n", (hotReload > 0 ? "enabled" : "disabled"));
-    printf("-------------------------------------------------------- \n");
+    printf("--------------------------------------------------------\n");
 
+    int quit = 0;
     MacGameCode game = macLoadGameCode();
     time_t lastModified;
 
-    while (close == 0)
+    GameInitResult result = game.Init();
+    if (result.ErrorCode > 0)
     {
-        lastModified = macGetFileCreationTime(libPath);
+        quit = 1;
+    }
 
+    while (quit == 0)
+    {
+        quit = game.Update(result.Window);
+
+        lastModified = macGetFileCreationTime(libPath);
         if (lastModified >= time(0))
         {
             printf("Reloading game code.\n");
             macUnloadGameCode(&game);
+            usleep(1 * 1000); // Wait 1ms just to be safe.
             game = macLoadGameCode();
             lastModified = time(0);
         }
-
-        printf("-> %.2f\n", game.PowerOf2(5.0));
-
-        usleep(300 * 1000);
     }
 
     return 0;
