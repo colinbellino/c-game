@@ -87,6 +87,10 @@ int main()
     int quit = 0;
     MacGameCode game = macLoadGameCode();
     time_t lastModified;
+    GameState gameState = {};
+    gameState.playerX = 0;
+    gameState.playerY = 0;
+    gameState.playerSpeed = 10.0;
 
     GameInitResult result = game.Init();
     if (result.ErrorCode > 0)
@@ -96,7 +100,7 @@ int main()
 
     while (quit == 0)
     {
-        quit = game.Update(result.Window);
+        quit = game.Update(result.Window, &gameState);
 
         lastModified = macGetFileCreationTime(libPath);
         if (lastModified >= time(0))

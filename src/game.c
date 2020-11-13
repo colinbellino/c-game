@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 
 #include "main.h"
+#include "game.h"
 
 GAME_INIT(Init)
 {
@@ -20,7 +21,7 @@ GAME_INIT(Init)
         "Hello",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH, SCREEN_HEIGHT,
-        SDL_WINDOW_SHOWN);
+        SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP);
     if (result.Window == NULL)
     {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -28,6 +29,7 @@ GAME_INIT(Init)
         return result;
     }
 
+    SDL_SetWindowOpacity(result.Window, 0.8f);
     SDL_CreateRenderer(result.Window, -1, SDL_RENDERER_ACCELERATED);
 
     return result;
@@ -49,6 +51,23 @@ GAME_UPDATE(Update)
             {
                 return 1;
             }
+
+            if (keyboardEvent.keysym.scancode == SDL_SCANCODE_LEFT)
+            {
+                gameState->playerX -= 1 * gameState->playerSpeed;
+            }
+            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_RIGHT)
+            {
+                gameState->playerX += 1 * gameState->playerSpeed;
+            }
+            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_UP)
+            {
+                gameState->playerY -= 1 * gameState->playerSpeed;
+            }
+            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_DOWN)
+            {
+                gameState->playerY += 1 * gameState->playerSpeed;
+            }
         }
     }
 
@@ -57,10 +76,10 @@ GAME_UPDATE(Update)
     SDL_RenderClear(renderer);
 
     SDL_Rect rect;
-    rect.x = 250;
-    rect.y = 150;
-    rect.w = 200;
-    rect.h = 200;
+    rect.x = gameState->playerX;
+    rect.y = gameState->playerY;
+    rect.w = 20;
+    rect.h = 20;
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);

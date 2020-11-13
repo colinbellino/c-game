@@ -7,6 +7,19 @@
 #define local static
 #define global static
 
+typedef struct Float2
+{
+    float X;
+    float Y;
+} Float2;
+
+typedef struct GameState
+{
+    int playerX;
+    int playerY;
+    float playerSpeed;
+} GameState;
+
 typedef struct GameInitResult
 {
     SDL_Window *Window;
@@ -18,17 +31,17 @@ typedef GAME_INIT(GameInit);
 
 GAME_INIT(gameInitStub)
 {
-    printf("gameInitStub");
+    printf("gameInitStub\n");
     GameInitResult bla = {};
     return bla;
 }
 
-#define GAME_UPDATE(name) int name(SDL_Window *window)
+#define GAME_UPDATE(name) int name(SDL_Window *window, GameState *gameState)
 typedef GAME_UPDATE(GameUpdate);
 
 GAME_UPDATE(gameUpdateStub)
 {
-    printf("gameUpdateStub");
+    printf("gameUpdateStub\n");
     return 0;
 }
 
