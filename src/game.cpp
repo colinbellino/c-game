@@ -1,9 +1,9 @@
 #include <SDL2/SDL.h>
 
 #include "main.h"
-#include "game.h"
+#include "entities.cpp"
 
-GAME_INIT(Init)
+extern "C" GAME_INIT(gameInit)
 {
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 450;
@@ -13,30 +13,43 @@ GAME_INIT(Init)
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-        result.ErrorCode = 1;
+        result.errorCode = 1;
         return result;
     }
 
-    result.Window = SDL_CreateWindow(
+    result.window = SDL_CreateWindow(
         "Hello",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH, SCREEN_HEIGHT,
         SDL_WINDOW_SHOWN | SDL_WINDOW_ALWAYS_ON_TOP);
-    if (result.Window == NULL)
+    if (result.window == NULL)
     {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        result.ErrorCode = 1;
+        result.errorCode = 1;
         return result;
     }
 
-    SDL_SetWindowOpacity(result.Window, 0.8f);
-    SDL_CreateRenderer(result.Window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_SetWindowOpacity(result.window, 0.8f);
+    SDL_CreateRenderer(result.window, -1, SDL_RENDERER_ACCELERATED);
 
     return result;
 }
 
-GAME_UPDATE(Update)
+extern "C" GAME_UPDATE(gameUpdate)
 {
+    if (!gameState->initialized)
+    {
+        Entity player = {};
+        addComponentPosition(&player, 0, 0);
+        addComponentStats(&player, 10.0);
+        gameState->player = player;
+
+        gameState->initialized = true;
+    }
+
+    Position *playerPosition = gameState->player.components.position;
+    Stats *playerStats = gameState->player.components.stats;
+
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -44,6 +57,7 @@ GAME_UPDATE(Update)
         {
             return 1;
         }
+
         if (event.type == SDL_KEYDOWN)
         {
             SDL_KeyboardEvent keyboardEvent = event.key;
@@ -54,19 +68,27 @@ GAME_UPDATE(Update)
 
             if (keyboardEvent.keysym.scancode == SDL_SCANCODE_LEFT)
             {
-                gameState->playerX -= 1 * gameState->playerSpeed;
+                playerPosition->x -= 1 * playerStats->moveSpeed;
             }
             else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_RIGHT)
             {
-                gameState->playerX += 1 * gameState->playerSpeed;
+                playerPosition->x += 1 * playerStats->moveSpeed;
             }
             else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_UP)
             {
-                gameState->playerY -= 1 * gameState->playerSpeed;
+                playerPosition->y -= 1 * playerStats->moveSpeed;
             }
             else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_DOWN)
             {
-                gameState->playerY += 1 * gameState->playerSpeed;
+                playerPosition->y += 1 * playerStats->moveSpeed;
+            }
+            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_F1)
+            {
+                playerStats->moveSpeed -= 10.0;
+            }
+            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_F2)
+            {
+                playerStats->moveSpeed += 10.0;
             }
         }
     }
@@ -76,8 +98,8 @@ GAME_UPDATE(Update)
     SDL_RenderClear(renderer);
 
     SDL_Rect rect;
-    rect.x = gameState->playerX;
-    rect.y = gameState->playerY;
+    rect.x = playerPosition->x;
+    rect.y = playerPosition->y;
     rect.w = 20;
     rect.h = 20;
 

@@ -3,28 +3,17 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
+#include "game.h"
+
 #define internal static
 #define local static
 #define global static
 
-typedef struct Float2
+struct GameInitResult
 {
-    float X;
-    float Y;
-} Float2;
-
-typedef struct GameState
-{
-    int playerX;
-    int playerY;
-    float playerSpeed;
-} GameState;
-
-typedef struct GameInitResult
-{
-    SDL_Window *Window;
-    int ErrorCode;
-} GameInitResult;
+    SDL_Window *window;
+    int errorCode;
+};
 
 #define GAME_INIT(name) GameInitResult name()
 typedef GAME_INIT(GameInit);
