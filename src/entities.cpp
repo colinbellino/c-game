@@ -15,6 +15,12 @@ void addComponentStats(Entity *entity, float moveSpeed)
     entity->components.stats->moveSpeed = moveSpeed;
 }
 
+void addComponentSprite(Entity *entity, Color color)
+{
+    entity->components.sprite = (Sprite *)malloc(sizeof(Sprite));
+    entity->components.sprite->color = color;
+}
+
 void freeEntity(Entity *entity)
 {
     if (entity->components.position)

@@ -3,7 +3,8 @@
         "*.js": "javascriptreact",
         "__locale": "c",
         "typeinfo": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "__node_handle": "cpp"
     },
     "triggerTaskOnSave.tasks": {
         "mac_build_game": [

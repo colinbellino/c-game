@@ -35,20 +35,78 @@ extern "C" GAME_INIT(gameInit)
     return result;
 }
 
+void renderPlayerSystem(SDL_Window *window, GameState *gameState)
+{
+    size_t entitiesCount = sizeof(gameState->entities) / sizeof(gameState->entities[0]);
+
+    SDL_Renderer *renderer = SDL_GetRenderer(window);
+    SDL_RenderClear(renderer);
+
+    for (int entityIndex = 0; entityIndex < entitiesCount; entityIndex++)
+    {
+        Entity entity = gameState->entities[entityIndex];
+
+        SDL_Rect rect;
+        rect.x = entity.components.position->x;
+        rect.y = entity.components.position->y;
+        rect.w = 20;
+        rect.h = 20;
+
+        SDL_SetRenderDrawColor(
+            renderer,
+            entity.components.sprite->color.r,
+            entity.components.sprite->color.g,
+            entity.components.sprite->color.b,
+            entity.components.sprite->color.a);
+        SDL_RenderFillRect(renderer, &rect);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    }
+
+    SDL_RenderPresent(renderer);
+}
+
+void movePlayerSystem(SDL_Window *window, GameState *gameState)
+{
+    size_t entitiesCount = sizeof(gameState->entities) / sizeof(gameState->entities[0]);
+
+    for (int entityIndex = 0; entityIndex < entitiesCount; entityIndex++)
+    {
+        Entity entity = gameState->entities[entityIndex];
+
+        entity.components.position->x += gameState->playerInput.x * entity.components.stats->moveSpeed;
+        entity.components.position->y += gameState->playerInput.y * entity.components.stats->moveSpeed;
+
+        if (gameState->playerInput.debug1)
+        {
+            entity.components.stats->moveSpeed -= 10.0;
+        }
+        if (gameState->playerInput.debug2)
+        {
+            entity.components.stats->moveSpeed += 10.0;
+        }
+    }
+}
+
 extern "C" GAME_UPDATE(gameUpdate)
 {
+    gameState->playerInput = (PlayerInput){0};
+
     if (!gameState->initialized)
     {
         Entity player = {};
         addComponentPosition(&player, 0, 0);
         addComponentStats(&player, 10.0);
-        gameState->player = player;
+        addComponentSprite(&player, (Color){255, 0, 0, 0});
+        gameState->entities[0] = player;
+
+        Entity player2 = {};
+        addComponentPosition(&player2, 400, 400);
+        addComponentStats(&player2, 10.0);
+        addComponentSprite(&player2, (Color){0, 255, 0, 0});
+        gameState->entities[1] = player2;
 
         gameState->initialized = true;
     }
-
-    Position *playerPosition = gameState->player.components.position;
-    Stats *playerStats = gameState->player.components.stats;
 
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -68,48 +126,33 @@ extern "C" GAME_UPDATE(gameUpdate)
 
             if (keyboardEvent.keysym.scancode == SDL_SCANCODE_LEFT)
             {
-                playerPosition->x -= 1 * playerStats->moveSpeed;
+                gameState->playerInput.x = -1;
             }
-            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_RIGHT)
+            if (keyboardEvent.keysym.scancode == SDL_SCANCODE_RIGHT)
             {
-                playerPosition->x += 1 * playerStats->moveSpeed;
+                gameState->playerInput.x = 1;
             }
-            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_UP)
+            if (keyboardEvent.keysym.scancode == SDL_SCANCODE_UP)
             {
-                playerPosition->y -= 1 * playerStats->moveSpeed;
+                gameState->playerInput.y = -1;
             }
-            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_DOWN)
+            if (keyboardEvent.keysym.scancode == SDL_SCANCODE_DOWN)
             {
-                playerPosition->y += 1 * playerStats->moveSpeed;
+                gameState->playerInput.y = 1;
             }
-            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_F1)
+            if (keyboardEvent.keysym.scancode == SDL_SCANCODE_F1)
             {
-                playerStats->moveSpeed -= 10.0;
+                gameState->playerInput.debug1 = true;
             }
-            else if (keyboardEvent.keysym.scancode == SDL_SCANCODE_F2)
+            if (keyboardEvent.keysym.scancode == SDL_SCANCODE_F2)
             {
-                playerStats->moveSpeed += 10.0;
+                gameState->playerInput.debug2 = true;
             }
         }
     }
 
-    SDL_Renderer *renderer = SDL_GetRenderer(window);
-
-    SDL_RenderClear(renderer);
-
-    SDL_Rect rect;
-    rect.x = playerPosition->x;
-    rect.y = playerPosition->y;
-    rect.w = 20;
-    rect.h = 20;
-
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-    SDL_RenderFillRect(renderer, &rect);
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-
-    SDL_RenderPresent(renderer);
+    renderPlayerSystem(window, gameState);
+    movePlayerSystem(window, gameState);
 
     return 0;
 }
