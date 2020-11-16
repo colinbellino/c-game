@@ -9,5 +9,5 @@ if [ $hotReload == 1 ]; then
     ./mac-build-game.sh
     gcc -Wall -g ./src/mac-main.cpp -o ./build/main -D HOT_RELOAD
 else
-    gcc -Wall -g ./src/mac-main.cpp -o ./build/main ./build/game.dylib -I ./include -L ./lib -l SDL2-2.0.0
+    gcc -Wall -g ./src/mac-main.cpp -o ./build/main -I ./include -L ./lib -l SDL2-2.0.0 -l raylib
 fi

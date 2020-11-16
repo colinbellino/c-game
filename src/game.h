@@ -1,5 +1,7 @@
 #if !defined(GAME_H)
 
+#include "raylib.h"
+
 struct Position
 {
     int x;
@@ -9,14 +11,6 @@ struct Position
 struct Stats
 {
     float moveSpeed;
-};
-
-struct Color
-{
-    int r;
-    int g;
-    int b;
-    int a;
 };
 
 struct Sprite
