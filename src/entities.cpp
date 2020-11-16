@@ -1,6 +1,21 @@
 #include <stdlib.h>
+#include <uuid/uuid.h>
 
 #include "game.h"
+
+typedef uuid_t EntityId;
+
+void createEntity(EntityId &id)
+{
+    uuid_generate_random(id);
+}
+
+void printEntity(EntityId id)
+{
+    char idStr[37];
+    uuid_unparse_lower(id, idStr);
+    printf("Entity: %s\n", idStr);
+}
 
 void addComponentPosition(Entity *entity, int x, int y)
 {

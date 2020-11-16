@@ -29,7 +29,7 @@ extern "C" GAME_INIT(gameInit)
         return result;
     }
 
-    SDL_SetWindowOpacity(result.window, 0.8f);
+    SDL_SetWindowOpacity(result.window, 0.5f);
     SDL_CreateRenderer(result.window, -1, SDL_RENDERER_ACCELERATED);
 
     return result;
@@ -107,6 +107,10 @@ extern "C" GAME_UPDATE(gameUpdate)
 
         gameState->initialized = true;
     }
+
+    // EntityId entityId;
+    // createEntity(entityId);
+    // printEntity(entityId);
 
     SDL_Event event;
     while (SDL_PollEvent(&event))
