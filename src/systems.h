@@ -1,5 +1,3 @@
-#include "raylib.h"
-
 #include "ecs.h"
 #include "components.h"
 #include "game.h"

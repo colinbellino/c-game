@@ -93,20 +93,28 @@ int main()
 #endif
 
     bool quit = false;
-    GameState gameState = {};
 
-    GameInitResult result = game.init();
-    if (result.errorCode > 0)
+    GameMemory memory = {};
+    if (!memory.isInitialized)
+    {
+        int permanentStorageSize = megabytes(64);
+        memory.permanentStorage = malloc(permanentStorageSize);
+        memory.permanentStorageSize = permanentStorageSize;
+
+        memory.isInitialized = true;
+    }
+
+    if (game.init() > 0)
     {
         quit = true;
     }
 
     while (!quit)
     {
-        time_t now = time(0);
-        quit = game.update(result.window, &gameState);
+        quit = game.update(&memory);
 
 #if HOT_RELOAD
+        time_t now = time(0);
         lastModified = macGetFileCreationTime(libPath);
         // printTime("lastModified -> ", lastModified);
         // printTime("now -> ", now);

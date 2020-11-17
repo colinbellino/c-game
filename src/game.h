@@ -9,6 +9,13 @@
 #define local static
 #define global static
 
+#define assert(expression, message)                                                    \
+    if (expression == 0)                                                               \
+    {                                                                                  \
+        printf("Assertion failed in %s, line %d: %s.\n", __FILE__, __LINE__, message); \
+        abort();                                                                       \
+    }
+
 struct Position
 {
     int x;
@@ -49,7 +56,7 @@ struct PlayerInput
 struct GameState
 {
     PlayerInput playerInput;
-    bool initialized;
+    bool isInitialized;
     EcsCore *ecs;
     Entity entities[2];
 };

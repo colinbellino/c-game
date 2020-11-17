@@ -1,5 +1,6 @@
-#include "ecs.h"
 #include "main.h"
+#include "game.h"
+#include "ecs.h"
 #include "systems.h"
 
 extern "C" GAME_INIT(gameInit)
@@ -10,15 +11,12 @@ extern "C" GAME_INIT(gameInit)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Hello raylib");
     SetTargetFPS(60);
 
-    GameInitResult result = {};
-    result.errorCode = 0;
-
-    return result;
+    return 0;
 }
 
 void bootstrapGame(GameState *gameState)
 {
-    if (!gameState->initialized)
+    if (!gameState->isInitialized)
     {
         printf("Bootstrapping game state!\n");
 
@@ -42,26 +40,30 @@ void bootstrapGame(GameState *gameState)
         }
 
         {
-            EcsEntity entityEntity = ecsCreateEntity(gameState->ecs);
+            EcsEntity enemyEntity = ecsCreateEntity(gameState->ecs);
             PositionComponent position = {600, 100, 0};
             SpriteComponent sprite = {(Color){255, 0, 0, 255}};
             StatsComponent stats = {10.0};
-            ecsEntityAddComponent(gameState->ecs, entityEntity, COMPONENT_POSITION, &position);
-            ecsEntityAddComponent(gameState->ecs, entityEntity, COMPONENT_SPRITE, &sprite);
-            ecsEntityAddComponent(gameState->ecs, entityEntity, COMPONENT_STATS, &stats);
+            ecsEntityAddComponent(gameState->ecs, enemyEntity, COMPONENT_POSITION, &position);
+            ecsEntityAddComponent(gameState->ecs, enemyEntity, COMPONENT_SPRITE, &sprite);
+            ecsEntityAddComponent(gameState->ecs, enemyEntity, COMPONENT_STATS, &stats);
         }
 
-        gameState->initialized = true;
+        gameState->isInitialized = true;
     }
 }
 
 extern "C" GAME_UPDATE(gameUpdate)
 {
+    assert(sizeof(GameState) <= memory->permanentStorageSize, "GameState can't be larger than permanent storage");
+
+    GameState *gameState = (GameState *)memory->permanentStorage;
+
     bootstrapGame(gameState);
 
     if (IsKeyPressed(KEY_ENTER))
     {
-        gameState->initialized = false;
+        gameState->isInitialized = false;
     }
 
     ecsRunSystems(gameState->ecs, ECS_SYSTEM_UPDATE, gameState);
