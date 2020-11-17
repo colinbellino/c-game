@@ -1,6 +1,13 @@
 #if !defined(GAME_H)
 
+#define RAYLIB_FORCE_C_LITERAL 1
+
 #include "raylib.h"
+#include "ecs.h"
+
+#define internal static
+#define local static
+#define global static
 
 struct Position
 {
@@ -43,6 +50,7 @@ struct GameState
 {
     PlayerInput playerInput;
     bool initialized;
+    EcsCore *ecs;
     Entity entities[2];
 };
 

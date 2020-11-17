@@ -5,10 +5,6 @@
 
 #include "game.h"
 
-#define internal static
-#define local static
-#define global static
-
 struct GameInitResult
 {
     SDL_Window *window;

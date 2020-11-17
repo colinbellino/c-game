@@ -1,2 +1,4 @@
 ✔ Use sdl. @done (11/13/2020, 3:59:08 PM)
 ✔ Keep game state on reload. @done (11/13/2020, 6:34:56 PM)
+✔ Integrate with a simple ECS pattern @done (11/17/2020, 5:59:51 PM)
+☐ Persist game state to file
