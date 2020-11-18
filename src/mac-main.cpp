@@ -12,6 +12,7 @@
 #endif
 
 const char *libPath = "./build/game.dylib";
+const char *statePath = "./build/state.out.txt";
 
 struct MacGameCode
 {
@@ -77,6 +78,54 @@ void macUnloadGameCode(MacGameCode *gameCode)
 }
 #endif
 
+DEBUG_PLATFORM_READ_FROM_FILE(macDebugPlatformReadEntireFile)
+{
+    DebugReadFileResult result = {};
+
+    FILE *filePointer = fopen(filename, "r");
+    if (filePointer == 0)
+    {
+        fprintf(stderr, "Failed to open file %s.\n", filename);
+        return result;
+    }
+
+    fseek(filePointer, 0, SEEK_END);
+    long contentSize = ftell(filePointer);
+    fseek(filePointer, 0, SEEK_SET);
+
+    char *content = (char *)malloc(contentSize + 1);
+    fread(content, 1, contentSize, filePointer);
+
+    result.content = content;
+    result.contentSize = contentSize;
+
+    printf("content -> %s\n", content);
+    fclose(filePointer);
+
+    return result;
+}
+
+DEBUG_PLATFORM_WRITE_TO_FILE(macDebugPlatformWriteEntireFile)
+{
+    int success = remove(filename);
+
+    FILE *filePointer;
+    filePointer = fopen(filename, "wb");
+
+    printf("size -> %i\n", memorySize);
+    int bla = fwrite(memory, memorySize, 1, filePointer);
+    printf("success -> %i\n", bla);
+
+    // char *pouet = "Hello from code?";
+    // printf("size -> %i\n", strlen(pouet));
+    // int bla2 = fwrite(pouet, strlen(pouet), 1, filePointer);
+    // printf("bla2 -> %i\n", bla2);
+
+    fclose(filePointer);
+
+    return 0;
+}
+
 int main()
 {
     MacGameCode game = {};
@@ -97,9 +146,11 @@ int main()
     GameMemory memory = {};
     if (!memory.isInitialized)
     {
-        int permanentStorageSize = megabytes(64);
+        int permanentStorageSize = megabytes(2);
         memory.permanentStorage = malloc(permanentStorageSize);
         memory.permanentStorageSize = permanentStorageSize;
+        memory.readFromFile = macDebugPlatformReadEntireFile;
+        memory.writeToFile = macDebugPlatformWriteEntireFile;
 
         memory.isInitialized = true;
     }
@@ -111,6 +162,23 @@ int main()
 
     while (!quit)
     {
+        if (IsKeyReleased(KEY_F5))
+        {
+            printf("Saving game state.\n");
+            memory.writeToFile(statePath, memory.permanentStorageSize, memory.permanentStorage);
+        }
+
+        if (IsKeyReleased(KEY_F8))
+        {
+            printf("Loading game state.\n");
+            DebugReadFileResult result = memory.readFromFile(statePath);
+            if (result.contentSize > 0)
+            {
+                memory.permanentStorage = result.content;
+                // memory.permanentStorageSize = result.contentSize;
+            }
+        }
+
         quit = game.update(&memory);
 
 #if HOT_RELOAD

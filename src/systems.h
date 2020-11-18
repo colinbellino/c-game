@@ -27,12 +27,12 @@ void playerInputSystem(EcsCore *core, void *stuff)
         // printf("KEY_DOWN pressed!\n");
         gameState->playerInput.y = 1;
     }
-    if (IsKeyPressed(KEY_F1))
+    if (IsKeyReleased(KEY_F1))
     {
         // printf("KEY_F1 pressed!\n");
         gameState->playerInput.debug1 = true;
     }
-    if (IsKeyPressed(KEY_F2))
+    if (IsKeyReleased(KEY_F2))
     {
         // printf("KEY_F2 pressed!\n");
         gameState->playerInput.debug2 = true;

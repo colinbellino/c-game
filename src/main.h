@@ -8,6 +8,18 @@
 #define gigabytes(value) (megabytes(value) * 1024LL)
 #define terabytes(value) (gigabytes(Value) * 1024LL)
 
+struct DebugReadFileResult
+{
+    uint32_t contentSize;
+    void *content;
+};
+
+#define DEBUG_PLATFORM_READ_FROM_FILE(name) DebugReadFileResult name(const char *filename)
+typedef DEBUG_PLATFORM_READ_FROM_FILE(DebugPlatformReadFromFile);
+
+#define DEBUG_PLATFORM_WRITE_TO_FILE(name) bool name(const char *filename, uint32_t memorySize, void *memory)
+typedef DEBUG_PLATFORM_WRITE_TO_FILE(DebugPlatformWriteToFile);
+
 struct GameMemory
 {
     bool isInitialized;
@@ -18,9 +30,8 @@ struct GameMemory
     uint64_t transientStorageSize;
     void *transientStorage; // NOTE(casey): REQUIRED to be cleared to zero at startup
 
-    // debug_platform_free_file_memory *DEBUGPlatformFreeFileMemory;
-    // debug_platform_read_entire_file *DEBUGPlatformReadEntireFile;
-    // debug_platform_write_entire_file *DEBUGPlatformWriteEntireFile;
+    DebugPlatformReadFromFile *readFromFile;
+    DebugPlatformWriteToFile *writeToFile;
 };
 
 #define GAME_INIT(name) int name()

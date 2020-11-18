@@ -18,9 +18,11 @@ void bootstrapGame(GameState *gameState)
 {
     if (!gameState->isInitialized)
     {
-        printf("Bootstrapping game state!\n");
+        printf("Resetting game state!\n");
 
-        gameState->ecs = ecsCreateCore(1000, COMPONENT_COUNT, 2);
+        gameState->debug = 0;
+
+        gameState->ecs = ecsCreateCore(1000, COMPONENT_COUNT, 3);
         ecsRegisterComponent(gameState->ecs, COMPONENT_POSITION, 1000, sizeof(PositionComponent), NULL);
         ecsRegisterComponent(gameState->ecs, COMPONENT_SPRITE, 1000, sizeof(SpriteComponent), NULL);
         ecsRegisterComponent(gameState->ecs, COMPONENT_STATS, 1000, sizeof(StatsComponent), NULL);
@@ -59,6 +61,13 @@ extern "C" GAME_UPDATE(gameUpdate)
 
     GameState *gameState = (GameState *)memory->permanentStorage;
 
+    DrawText(TextFormat("debug: %i", gameState->debug), 20, 20, 20, WHITE);
+    if (IsKeyReleased(KEY_SPACE))
+    {
+        printf("KEY_SPACE pressed!\n");
+        gameState->debug += 1;
+    }
+
     bootstrapGame(gameState);
 
     if (IsKeyPressed(KEY_ENTER))
@@ -66,8 +75,13 @@ extern "C" GAME_UPDATE(gameUpdate)
         gameState->isInitialized = false;
     }
 
+    BeginDrawing();
+    ClearBackground(BLACK);
+
     ecsRunSystems(gameState->ecs, ECS_SYSTEM_UPDATE, gameState);
     ecsRunSystems(gameState->ecs, ECS_SYSTEM_RENDER, gameState);
+
+    EndDrawing();
 
     return WindowShouldClose();
 }

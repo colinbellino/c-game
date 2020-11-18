@@ -16,35 +16,6 @@
         abort();                                                                       \
     }
 
-struct Position
-{
-    int x;
-    int y;
-};
-
-struct Stats
-{
-    float moveSpeed;
-};
-
-struct Sprite
-{
-    Color color;
-};
-
-struct Components
-{
-    Position *position;
-    Stats *stats;
-    Sprite *sprite;
-};
-
-struct Entity
-{
-    unsigned int id;
-    Components components;
-};
-
 struct PlayerInput
 {
     float x;
@@ -55,10 +26,10 @@ struct PlayerInput
 
 struct GameState
 {
-    PlayerInput playerInput;
     bool isInitialized;
+    PlayerInput playerInput;
     EcsCore *ecs;
-    Entity entities[2];
+    int debug;
 };
 
 #define GAME_H

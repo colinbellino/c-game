@@ -23,7 +23,14 @@
         "ratio": "cpp",
         "tuple": "cpp",
         "utility": "cpp",
-        "cstring": "cpp"
+        "cstring": "cpp",
+        "__bit_reference": "cpp",
+        "atomic": "cpp",
+        "bitset": "cpp",
+        "__memory": "cpp",
+        "locale": "cpp",
+        "optional": "cpp",
+        "system_error": "cpp"
     },
     "triggerTaskOnSave.tasks": {
         "mac_build_game": [
